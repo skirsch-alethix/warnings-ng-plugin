@@ -1,15 +1,17 @@
 package io.jenkins.plugins.analysis.warnings.steps;
 
-import static io.jenkins.plugins.analysis.core.assertions.Assertions.*;
-
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.Test;
+
+import com.parasoft.xtest.reports.jenkins.tool.ParasoftTool;
 
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
+
+import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+
 import io.jenkins.plugins.analysis.core.model.AnalysisResult;
 import io.jenkins.plugins.analysis.core.model.ReportScanningTool;
 import io.jenkins.plugins.analysis.core.model.StaticAnalysisLabelProvider;
@@ -17,6 +19,8 @@ import io.jenkins.plugins.analysis.core.model.Tool;
 import io.jenkins.plugins.analysis.core.testutil.IntegrationTestWithJenkinsPerSuite;
 import io.jenkins.plugins.analysis.warnings.*;
 import io.jenkins.plugins.analysis.warnings.checkstyle.CheckStyle;
+
+import static io.jenkins.plugins.analysis.core.assertions.Assertions.*;
 
 /**
  * Integration tests of all parsers of the warnings plug-in in pipelines.
@@ -68,26 +72,32 @@ public class ParsersITest extends IntegrationTestWithJenkinsPerSuite {
             + "files&#61;&#34;$files $directory/$i&#34;\n"
             + "done</code></pre>";
 
-    /** Runs the native parser on a file that contains 9 issues.. */
+    /** Runs the Parasoft parser (part of the parasoft-findings plugin) on a file that contains 5 issues. */
+    @Test
+    public void shouldReadParasoftWarnings() {
+        shouldFindIssuesOfTool(5, new ParasoftTool(), "parasoft.xml");
+    }
+
+    /** Runs the native parser on a file that contains 9 issues. */
     @Test
     public void shouldReadNativeFormats() {
         shouldFindIssuesOfTool(9 + 5 + 5, new WarningsPlugin(), "warnings-issues.xml", "issues.json",
                 "json-issues.log");
     }
 
-    /** Runs the native parser on a file that contains 9 issues.. */
+    /** Runs the native parser on a file that contains 9 issues. */
     @Test
     public void shouldReadNativeXmlFormat() {
         shouldFindIssuesOfTool(9, new WarningsPlugin(), "warnings-issues.xml");
     }
 
-    /** Runs the native parser on a file that contains 5 issues.. */
+    /** Runs the native parser on a file that contains 5 issues. */
     @Test
     public void shouldReadNativeJsonFormat() {
         shouldFindIssuesOfTool(5, new WarningsPlugin(), "issues.json");
     }
 
-    /** Runs the native parser on a file that contains 8 issues.. */
+    /** Runs the native parser on a file that contains 8 issues. */
     @Test
     public void shouldReadNativeJsonLogFormat() {
         shouldFindIssuesOfTool(5, new WarningsPlugin(), "json-issues.log");
@@ -756,12 +766,12 @@ public class ParsersITest extends IntegrationTestWithJenkinsPerSuite {
                 "pylint_parseable.txt");
 
         assertThatDescriptionOfIssueIsSet(new PyLint(), report.get(1),
-                "Used when the name doesn't match the regular expression associated to its type(constant, variable, class...).");
+                "Used when the name doesn't match the regular expression associated to its type(constant, variable, class..).");
         assertThatDescriptionOfIssueIsSet(new PyLint(), report.get(7),
                 "Used when a wrong number of spaces is used around an operator, bracket orblock opener.");
 
         assertThatDescriptionOfIssueIsSet(new PyLint(), reportAnsi.get(1),
-                "Used when the name doesn't match the regular expression associated to its type(constant, variable, class...).");
+                "Used when the name doesn't match the regular expression associated to its type(constant, variable, class..).");
         assertThatDescriptionOfIssueIsSet(new PyLint(), reportAnsi.get(7),
                 "Used when a wrong number of spaces is used around an operator, bracket orblock opener.");
     }
